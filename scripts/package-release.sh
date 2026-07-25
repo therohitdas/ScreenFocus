@@ -10,6 +10,14 @@ CHECKSUM_PATH="$ARCHIVE_PATH.sha256"
 
 "$PROJECT_DIR/scripts/build-app.sh" >/dev/null
 
+ICON_FILE="$(
+    plutil -extract CFBundleIconFile raw "$APP_PATH/Contents/Info.plist"
+)"
+if [[ ! -f "$APP_PATH/Contents/Resources/$ICON_FILE" ]]; then
+    print -u2 "The packaged app is missing its declared icon: $ICON_FILE"
+    exit 1
+fi
+
 ditto -c -k --sequesterRsrc --keepParent "$APP_PATH" "$ARCHIVE_PATH"
 (
     cd "$PROJECT_DIR/dist"

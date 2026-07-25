@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.1
+
+- Replaced the tray toggle with a compact Pause/Resume button.
+- Removed the status subtitle beneath the ScreenFocus name.
+- Added release-time verification that the app icon is present in the bundle.
+
 ## 0.4.0
 
 - Fixed double-painted corner pixels at reduced overlay opacity.

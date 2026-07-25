@@ -18,21 +18,22 @@ struct MenuPanelView: View {
                     .font(.title2)
                     .foregroundStyle(statusColor)
 
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("ScreenFocus")
-                        .font(.headline)
-                    Text(state.status.title)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
+                Text("ScreenFocus")
+                    .font(.headline)
 
                 Spacer()
 
-                Toggle("", isOn: Binding(
-                    get: { settings.enabled },
-                    set: { _ in state.toggleEnabled() }
-                ))
-                .labelsHidden()
+                Button {
+                    state.toggleEnabled()
+                } label: {
+                    Label(
+                        settings.enabled ? "Pause" : "Resume",
+                        systemImage: settings.enabled ? "pause.fill" : "play.fill"
+                    )
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
+                .help(settings.enabled ? "Pause ScreenFocus" : "Resume ScreenFocus")
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 10)
