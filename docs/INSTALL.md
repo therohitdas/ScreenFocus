@@ -12,7 +12,7 @@
 2. Verify the checksum if one is provided:
 
    ```sh
-   shasum -a 256 ScreenFocus-x.y.z.zip
+   shasum -a 256 -c ScreenFocus-x.y.z.zip.sha256
    ```
 
 3. Double-click the ZIP file.
