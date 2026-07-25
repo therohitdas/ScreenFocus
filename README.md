@@ -25,7 +25,15 @@ focus itself. Ordinary typing no longer reaches a text field on the previous
 display, while system-wide shortcuts from macOS, Raycast, Karabiner-Elements,
 and Logitech software remain available.
 
-![ScreenFocus menu showing an aligned display](docs/assets/menu-popover.png)
+## ScreenFocus in action
+
+![ScreenFocus highlights the display under the pointer](docs/assets/screenshots/01-focus-follows-pointer.png)
+
+![ScreenFocus menu-bar controls](docs/assets/screenshots/02-menu-bar-control.png)
+
+![ScreenFocus display-highlight settings](docs/assets/screenshots/03-highlight-your-way.png)
+
+![ScreenFocus privacy and project information](docs/assets/screenshots/04-private-by-design.png)
 
 ## Why
 
