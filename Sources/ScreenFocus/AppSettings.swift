@@ -39,6 +39,8 @@ final class AppSettings: ObservableObject {
     private var isLoading = true
     private var isSaving = false
 
+    let shouldRegisterLaunchAtLoginByDefault: Bool
+
     var onChange: (() -> Void)?
 
     @Published var enabled: Bool {
@@ -79,6 +81,8 @@ final class AppSettings: ObservableObject {
 
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
+        shouldRegisterLaunchAtLoginByDefault =
+            defaults.object(forKey: Key.launchAtLogin) == nil
 
         defaults.register(defaults: [
             Key.enabled: true,
@@ -89,7 +93,7 @@ final class AppSettings: ObservableObject {
             Key.cornerLength: 72.0,
             Key.cornerThickness: 5.0,
             Key.overlayOpacity: 1.0,
-            Key.launchAtLogin: false
+            Key.launchAtLogin: true
         ])
 
         enabled = defaults.bool(forKey: Key.enabled)

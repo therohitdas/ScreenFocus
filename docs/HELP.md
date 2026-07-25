@@ -60,7 +60,8 @@ Turn this off to use ScreenFocus only as a display indicator.
 
 ### Launch at login
 
-Starts ScreenFocus automatically after you sign in.
+Starts ScreenFocus automatically after you sign in. This is enabled by default
+on first launch and can be turned off at any time.
 
 ## Troubleshooting
 

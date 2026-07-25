@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.4
+
+- Enabled Launch at Login by default on first launch.
+- Synced the Settings toggle with the real macOS Login Items state.
+- Preserved a stored preference when Launch at Login was previously disabled.
+
 ## 0.4.3
 
 - Redesigned the app icon as a polished macOS squircle.

@@ -15,7 +15,7 @@ struct ScreenFocusApp: App {
         .menuBarExtraStyle(.window)
 
         Settings {
-            SettingsView(settings: appState.settings)
+            SettingsView(state: appState)
         }
     }
 }

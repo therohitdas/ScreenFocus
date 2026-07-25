@@ -1,13 +1,18 @@
 import AppKit
-import ServiceManagement
 import SwiftUI
 
 struct SettingsView: View {
+    @ObservedObject var state: AppState
     @ObservedObject var settings: AppSettings
+
+    init(state: AppState) {
+        self.state = state
+        settings = state.settings
+    }
 
     var body: some View {
         TabView {
-            GeneralSettingsView(settings: settings)
+            GeneralSettingsView(state: state, settings: settings)
                 .tabItem {
                     Label("General", systemImage: "gearshape")
                 }
@@ -19,12 +24,15 @@ struct SettingsView: View {
         }
         .frame(width: 460, height: 470)
         .background(SettingsWindowConfigurator())
+        .onAppear {
+            state.refreshLaunchAtLoginStatus()
+        }
     }
 }
 
 private struct GeneralSettingsView: View {
+    @ObservedObject var state: AppState
     @ObservedObject var settings: AppSettings
-    @State private var launchAtLoginError: String?
 
     var body: some View {
         Form {
@@ -112,12 +120,12 @@ private struct GeneralSettingsView: View {
                     isOn: Binding(
                         get: { settings.launchAtLogin },
                         set: { enabled in
-                            updateLaunchAtLogin(enabled)
+                            state.setLaunchAtLogin(enabled)
                         }
                     )
                 )
 
-                if let launchAtLoginError {
+                if let launchAtLoginError = state.launchAtLoginError {
                     Text(launchAtLoginError)
                         .font(.caption)
                         .foregroundStyle(.red)
@@ -152,19 +160,6 @@ private struct GeneralSettingsView: View {
         return "\(Int(value.rounded())) \(suffix)"
     }
 
-    private func updateLaunchAtLogin(_ enabled: Bool) {
-        do {
-            if enabled {
-                try SMAppService.mainApp.register()
-            } else {
-                try SMAppService.mainApp.unregister()
-            }
-            settings.launchAtLogin = enabled
-            launchAtLoginError = nil
-        } catch {
-            launchAtLoginError = error.localizedDescription
-        }
-    }
 }
 
 private struct AboutSettingsView: View {

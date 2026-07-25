@@ -69,6 +69,7 @@ final class AppState: ObservableObject {
     @Published private(set) var pointerDisplayName = "Unknown"
     @Published private(set) var lastError: String?
     @Published private(set) var accessibilityGranted = false
+    @Published private(set) var launchAtLoginError: String?
 
     let settings: AppSettings
 
@@ -108,6 +109,7 @@ final class AppState: ObservableObject {
 
         pointerMonitor.start()
         startPermissionMonitoring()
+        reconcileLaunchAtLogin()
 
         if settings.focusTransferEnabled, !accessibilityGranted {
             Task { @MainActor [weak self] in
@@ -133,15 +135,43 @@ final class AppState: ObservableObject {
     func setLaunchAtLogin(_ enabled: Bool) {
         do {
             if enabled {
-                try SMAppService.mainApp.register()
+                if !launchAtLoginIsRequested {
+                    try SMAppService.mainApp.register()
+                }
             } else {
-                try SMAppService.mainApp.unregister()
+                if launchAtLoginIsRequested {
+                    try SMAppService.mainApp.unregister()
+                }
             }
-            settings.launchAtLogin = enabled
-            lastError = nil
+            settings.launchAtLogin = enabled && launchAtLoginIsRequested
+            launchAtLoginError = nil
         } catch {
-            settings.launchAtLogin = !enabled
-            lastError = "Launch at login could not be changed: \(error.localizedDescription)"
+            settings.launchAtLogin = launchAtLoginIsRequested
+            launchAtLoginError =
+                "Launch at login could not be changed: \(error.localizedDescription)"
+        }
+    }
+
+    func refreshLaunchAtLoginStatus() {
+        settings.launchAtLogin = launchAtLoginIsRequested
+    }
+
+    private var launchAtLoginIsRequested: Bool {
+        switch SMAppService.mainApp.status {
+        case .enabled, .requiresApproval:
+            true
+        case .notRegistered, .notFound:
+            false
+        @unknown default:
+            false
+        }
+    }
+
+    private func reconcileLaunchAtLogin() {
+        if settings.shouldRegisterLaunchAtLoginByDefault {
+            setLaunchAtLogin(true)
+        } else {
+            settings.launchAtLogin = launchAtLoginIsRequested
         }
     }
 

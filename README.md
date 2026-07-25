@@ -110,7 +110,7 @@ Open **Settings…** from the menu-bar item to change:
 - Highlight color.
 - Edge gap, thickness, and opacity.
 - Focus transfer.
-- Launch at login.
+- Launch at login, enabled by default on first launch.
 
 For status meanings, troubleshooting, and uninstall steps, read
 [Help](docs/HELP.md).
@@ -180,7 +180,7 @@ to grant Accessibility permission on a user's behalf.
 
 ## Current version
 
-`0.4.3`
+`0.4.4`
 
 ScreenFocus is an early personal utility. Back up anything important and test
 its behavior with the applications and shortcuts you rely on.

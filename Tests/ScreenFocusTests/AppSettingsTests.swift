@@ -17,6 +17,20 @@ final class AppSettingsTests: XCTestCase {
         XCTAssertEqual(settings.cornerLength, 72)
         XCTAssertEqual(settings.cornerThickness, 5)
         XCTAssertEqual(settings.overlayOpacity, 1)
+        XCTAssertTrue(settings.launchAtLogin)
+        XCTAssertTrue(settings.shouldRegisterLaunchAtLoginByDefault)
+    }
+
+    func testStoredLaunchAtLoginChoiceOverridesTheDefault() throws {
+        let suiteName = "ScreenFocusTests.\(UUID().uuidString)"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suiteName))
+        defaults.removePersistentDomain(forName: suiteName)
+        defaults.set(false, forKey: "launchAtLogin")
+
+        let settings = AppSettings(defaults: defaults)
+
+        XCTAssertFalse(settings.launchAtLogin)
+        XCTAssertFalse(settings.shouldRegisterLaunchAtLoginByDefault)
     }
 
     func testRecommendedAppearanceCanBeRestored() throws {
