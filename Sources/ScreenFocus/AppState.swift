@@ -45,6 +45,22 @@ enum ScreenFocusStatus: Equatable {
             "viewfinder"
         }
     }
+
+    func reconciledWithFocusProtection(
+        enabled: Bool,
+        accessibilityGranted: Bool
+    ) -> ScreenFocusStatus {
+        guard enabled, accessibilityGranted else {
+            return .highlightOnly
+        }
+
+        switch self {
+        case .starting, .highlightOnly, .paused:
+            return .aligned
+        case .aligned, .transitioning, .guarded, .failed:
+            return self
+        }
+    }
 }
 
 @MainActor
@@ -140,9 +156,13 @@ final class AppState: ObservableObject {
             return
         }
 
-        if !settings.focusTransferEnabled || !accessibilityGranted {
+        status = status.reconciledWithFocusProtection(
+            enabled: settings.focusTransferEnabled,
+            accessibilityGranted: accessibilityGranted
+        )
+
+        if status == .highlightOnly {
             focusGuard.disengage()
-            status = .highlightOnly
         }
 
         if let currentDisplayID {

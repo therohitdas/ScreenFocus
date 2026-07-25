@@ -33,6 +33,7 @@ struct MenuPanelView: View {
                 }
                 .buttonStyle(.bordered)
                 .controlSize(.small)
+                .focusEffectDisabled()
                 .help(settings.enabled ? "Pause ScreenFocus" : "Resume ScreenFocus")
             }
             .padding(.horizontal, 12)
@@ -54,6 +55,7 @@ struct MenuPanelView: View {
                         Button("Grant Accessibility Access") {
                             state.requestAccessibilityPermission()
                         }
+                        .focusEffectDisabled()
 
                         Text("ScreenFocus refreshes automatically after access is granted.")
                             .font(.caption)
@@ -85,6 +87,7 @@ struct MenuPanelView: View {
                     actionRow("Settings…", systemImage: "gear")
                 }
                 .buttonStyle(.plain)
+                .focusEffectDisabled()
 
                 Button {
                     NSApp.terminate(nil)
@@ -92,6 +95,7 @@ struct MenuPanelView: View {
                     actionRow("Quit ScreenFocus", systemImage: "power")
                 }
                 .buttonStyle(.plain)
+                .focusEffectDisabled()
             }
             .padding(.vertical, 4)
 
@@ -109,6 +113,7 @@ struct MenuPanelView: View {
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
+            .focusEffectDisabled()
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
         }
