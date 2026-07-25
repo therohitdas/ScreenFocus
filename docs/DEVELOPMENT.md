@@ -31,8 +31,16 @@ Packaging/
 
 scripts/
   setup-local-signing.sh
+  build-icon.sh
   build-app.sh
   package-release.sh
+```
+
+Regenerate `Packaging/ScreenFocus.icns` from the transparent 1024 × 1024
+`Assets/AppIcon.png` master with:
+
+```sh
+./scripts/build-icon.sh
 ```
 
 ## Build

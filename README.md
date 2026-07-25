@@ -172,7 +172,7 @@ to grant Accessibility permission on a user's behalf.
 
 ## Current version
 
-`0.4.2`
+`0.4.3`
 
 ScreenFocus is an early personal utility. Back up anything important and test
 its behavior with the applications and shortcuts you rely on.

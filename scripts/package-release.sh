@@ -8,6 +8,7 @@ ARCHIVE_NAME="ScreenFocus-$VERSION.zip"
 ARCHIVE_PATH="$PROJECT_DIR/dist/$ARCHIVE_NAME"
 CHECKSUM_PATH="$ARCHIVE_PATH.sha256"
 
+"$PROJECT_DIR/scripts/build-icon.sh" >/dev/null
 "$PROJECT_DIR/scripts/build-app.sh" >/dev/null
 
 ICON_FILE="$(

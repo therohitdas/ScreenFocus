@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.3
+
+- Redesigned the app icon as a polished macOS squircle.
+- Removed the opaque black canvas around the icon.
+- Added a repeatable icon builder for every required macOS icon size.
+
 ## 0.4.2
 
 - Removed the distracting focus ring from tray controls.
