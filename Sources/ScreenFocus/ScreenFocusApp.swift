@@ -16,7 +16,6 @@ struct ScreenFocusApp: App {
 
         Settings {
             SettingsView(settings: appState.settings)
-                .frame(width: 460)
         }
     }
 }

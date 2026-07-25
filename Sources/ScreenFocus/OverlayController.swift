@@ -8,18 +8,130 @@ enum OverlayStyle: Equatable {
     case failed
 }
 
-private enum CornerPosition: CaseIterable {
+enum CornerPosition: CaseIterable {
     case topLeft
     case topRight
     case bottomLeft
     case bottomRight
 }
 
-private enum BorderEdge: CaseIterable {
+enum BorderEdge: CaseIterable, Hashable {
     case top
     case right
     case bottom
     case left
+}
+
+struct BorderGeometry {
+    static func frame(
+        for edge: BorderEdge,
+        displayFrame: CGRect,
+        gap: CGFloat,
+        thickness: CGFloat
+    ) -> CGRect {
+        let inset = max(0, gap.rounded())
+        let innerFrame = displayFrame.insetBy(dx: inset, dy: inset)
+        let depth = min(
+            max(1, thickness.rounded()),
+            innerFrame.width / 2,
+            innerFrame.height / 2
+        )
+        let verticalLength = max(0, innerFrame.height - (depth * 2))
+
+        switch edge {
+        case .top:
+            return CGRect(
+                x: innerFrame.minX,
+                y: innerFrame.maxY - depth,
+                width: innerFrame.width,
+                height: depth
+            )
+        case .right:
+            return CGRect(
+                x: innerFrame.maxX - depth,
+                y: innerFrame.minY + depth,
+                width: depth,
+                height: verticalLength
+            )
+        case .bottom:
+            return CGRect(
+                x: innerFrame.minX,
+                y: innerFrame.minY,
+                width: innerFrame.width,
+                height: depth
+            )
+        case .left:
+            return CGRect(
+                x: innerFrame.minX,
+                y: innerFrame.minY + depth,
+                width: depth,
+                height: verticalLength
+            )
+        }
+    }
+}
+
+struct CornerGeometry {
+    static func rectangles(
+        for corner: CornerPosition,
+        bounds: CGRect,
+        thickness: CGFloat
+    ) -> (horizontal: CGRect, vertical: CGRect) {
+        let depth = min(
+            max(1, thickness.rounded()),
+            bounds.width / 2,
+            bounds.height / 2
+        )
+        let verticalHeight = max(0, bounds.height - depth)
+
+        switch corner {
+        case .topLeft:
+            return (
+                CGRect(
+                    x: 0,
+                    y: bounds.height - depth,
+                    width: bounds.width,
+                    height: depth
+                ),
+                CGRect(x: 0, y: 0, width: depth, height: verticalHeight)
+            )
+        case .topRight:
+            return (
+                CGRect(
+                    x: 0,
+                    y: bounds.height - depth,
+                    width: bounds.width,
+                    height: depth
+                ),
+                CGRect(
+                    x: bounds.width - depth,
+                    y: 0,
+                    width: depth,
+                    height: verticalHeight
+                )
+            )
+        case .bottomLeft:
+            return (
+                CGRect(x: 0, y: 0, width: bounds.width, height: depth),
+                CGRect(
+                    x: 0,
+                    y: depth,
+                    width: depth,
+                    height: verticalHeight
+                )
+            )
+        case .bottomRight:
+            return (
+                CGRect(x: 0, y: 0, width: bounds.width, height: depth),
+                CGRect(
+                    x: bounds.width - depth,
+                    y: depth,
+                    width: depth,
+                    height: verticalHeight
+                )
+            )
+        }
+    }
 }
 
 @MainActor
@@ -238,43 +350,16 @@ private final class BorderPanel: HighlightPanel {
         settings: AppSettings,
         color: NSColor
     ) {
-        let thickness = CGFloat(settings.cornerThickness)
-        let gap = CGFloat(settings.edgeGap)
-        let depth = max(1, thickness)
-
-        let frame: CGRect
-        switch edge {
-        case .top:
-            frame = CGRect(
-                x: displayFrame.minX + gap,
-                y: displayFrame.maxY - gap - depth,
-                width: max(1, displayFrame.width - (gap * 2)),
-                height: depth
-            )
-        case .right:
-            frame = CGRect(
-                x: displayFrame.maxX - gap - depth,
-                y: displayFrame.minY + gap,
-                width: depth,
-                height: max(1, displayFrame.height - (gap * 2))
-            )
-        case .bottom:
-            frame = CGRect(
-                x: displayFrame.minX + gap,
-                y: displayFrame.minY + gap,
-                width: max(1, displayFrame.width - (gap * 2)),
-                height: depth
-            )
-        case .left:
-            frame = CGRect(
-                x: displayFrame.minX + gap,
-                y: displayFrame.minY + gap,
-                width: depth,
-                height: max(1, displayFrame.height - (gap * 2))
-            )
-        }
-
-        setFrame(frame, display: false)
+        let thickness = CGFloat(settings.cornerThickness).rounded()
+        setFrame(
+            BorderGeometry.frame(
+                for: edge,
+                displayFrame: displayFrame,
+                gap: CGFloat(settings.edgeGap),
+                thickness: thickness
+            ),
+            display: false
+        )
         edgeView.configure(
             color: color,
             thickness: thickness,
@@ -318,48 +403,13 @@ private final class CornerView: NSView {
         super.draw(dirtyRect)
 
         color.withAlphaComponent(markerOpacity).setFill()
-        let lineThickness = min(thickness, bounds.width / 2, bounds.height / 2)
-
-        let horizontal: CGRect
-        let vertical: CGRect
-
-        switch corner {
-        case .topLeft:
-            horizontal = CGRect(
-                x: 0,
-                y: bounds.height - lineThickness,
-                width: bounds.width,
-                height: lineThickness
-            )
-            vertical = CGRect(x: 0, y: 0, width: lineThickness, height: bounds.height)
-        case .topRight:
-            horizontal = CGRect(
-                x: 0,
-                y: bounds.height - lineThickness,
-                width: bounds.width,
-                height: lineThickness
-            )
-            vertical = CGRect(
-                x: bounds.width - lineThickness,
-                y: 0,
-                width: lineThickness,
-                height: bounds.height
-            )
-        case .bottomLeft:
-            horizontal = CGRect(x: 0, y: 0, width: bounds.width, height: lineThickness)
-            vertical = CGRect(x: 0, y: 0, width: lineThickness, height: bounds.height)
-        case .bottomRight:
-            horizontal = CGRect(x: 0, y: 0, width: bounds.width, height: lineThickness)
-            vertical = CGRect(
-                x: bounds.width - lineThickness,
-                y: 0,
-                width: lineThickness,
-                height: bounds.height
-            )
-        }
-
-        NSBezierPath(rect: horizontal).fill()
-        NSBezierPath(rect: vertical).fill()
+        let rectangles = CornerGeometry.rectangles(
+            for: corner,
+            bounds: bounds,
+            thickness: thickness
+        )
+        NSBezierPath(rect: rectangles.horizontal).fill()
+        NSBezierPath(rect: rectangles.vertical).fill()
     }
 }
 

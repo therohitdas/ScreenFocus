@@ -10,7 +10,8 @@
 </p>
 
 <p align="center">
-  macOS 14+ · Apple Silicon and Intel · SwiftUI + AppKit · No analytics
+  <a href="https://therohitdas.com">Rohit Das</a> · macOS 14+ ·
+  Apple Silicon and Intel · SwiftUI + AppKit · No analytics
 </p>
 
 ---
@@ -166,11 +167,12 @@ to grant Accessibility permission on a user's behalf.
 - [Help and troubleshooting](docs/HELP.md)
 - [Development guide](docs/DEVELOPMENT.md)
 - [Privacy](docs/PRIVACY.md)
+- [End User License Agreement](EULA.md)
 - [Changelog](CHANGELOG.md)
 
 ## Current version
 
-`0.3.3`
+`0.4.0`
 
 ScreenFocus is an early personal utility. Back up anything important and test
 its behavior with the applications and shortcuts you rely on.

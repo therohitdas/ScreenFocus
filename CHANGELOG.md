@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.4.0
+
+- Fixed double-painted corner pixels at reduced overlay opacity.
+- Made full-border and corner-marker geometry seamless.
+- Refined tray and Settings spacing for a more native macOS appearance.
+- Added a dedicated About tab with author, website, source, issues, EULA, and
+  privacy links.
+- Added public-facing legal and attribution metadata.
+
 ## 0.3.3
 
 - Show the configured highlight instantly when crossing displays.

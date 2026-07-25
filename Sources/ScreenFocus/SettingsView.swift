@@ -4,17 +4,43 @@ import SwiftUI
 
 struct SettingsView: View {
     @ObservedObject var settings: AppSettings
+
+    var body: some View {
+        TabView {
+            GeneralSettingsView(settings: settings)
+                .tabItem {
+                    Label("General", systemImage: "gearshape")
+                }
+
+            AboutSettingsView()
+                .tabItem {
+                    Label("About", systemImage: "info.circle")
+                }
+        }
+        .frame(width: 460, height: 470)
+        .background(SettingsWindowConfigurator())
+    }
+}
+
+private struct GeneralSettingsView: View {
+    @ObservedObject var settings: AppSettings
     @State private var launchAtLoginError: String?
 
     var body: some View {
         Form {
             Section("Behavior") {
                 Toggle("Enable ScreenFocus", isOn: $settings.enabled)
-                Toggle("Transfer focus when the pointer crosses displays", isOn: $settings.focusTransferEnabled)
+                Toggle(
+                    "Transfer focus when the pointer crosses displays",
+                    isOn: $settings.focusTransferEnabled
+                )
 
-                Text("When no window is under the pointer, ScreenFocus safely receives ordinary app-level keys. Global shortcuts from macOS, Raycast, Karabiner, and Logitech remain available.")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                Text(
+                    "Empty desktop space is protected without blocking global "
+                    + "shortcuts from macOS, Raycast, Karabiner, or Logitech."
+                )
+                .font(.caption)
+                .foregroundStyle(.secondary)
             }
 
             Section("Display highlight") {
@@ -30,7 +56,9 @@ struct SettingsView: View {
                         "Color",
                         selection: Binding(
                             get: { Color(nsColor: settings.highlightColor) },
-                            set: { settings.highlightColorHex = NSColor($0).screenFocusHex }
+                            set: {
+                                settings.highlightColorHex = NSColor($0).screenFocusHex
+                            }
                         ),
                         supportsOpacity: false
                     )
@@ -39,6 +67,7 @@ struct SettingsView: View {
                         title: "Edge gap",
                         value: $settings.edgeGap,
                         range: 0...40,
+                        step: 1,
                         suffix: "pt"
                     )
 
@@ -47,6 +76,7 @@ struct SettingsView: View {
                             title: "Corner length",
                             value: $settings.cornerLength,
                             range: 12...72,
+                            step: 1,
                             suffix: "pt"
                         )
                     }
@@ -55,6 +85,7 @@ struct SettingsView: View {
                         title: "Thickness",
                         value: $settings.cornerThickness,
                         range: 2...14,
+                        step: 1,
                         suffix: "pt"
                     )
 
@@ -62,9 +93,9 @@ struct SettingsView: View {
                         title: "Opacity",
                         value: $settings.overlayOpacity,
                         range: 0.25...1,
+                        step: 0.05,
                         suffix: "%"
                     )
-
                 }
 
                 HStack {
@@ -80,18 +111,8 @@ struct SettingsView: View {
                     "Launch at login",
                     isOn: Binding(
                         get: { settings.launchAtLogin },
-                        set: { newValue in
-                            do {
-                                if newValue {
-                                    try SMAppService.mainApp.register()
-                                } else {
-                                    try SMAppService.mainApp.unregister()
-                                }
-                                settings.launchAtLogin = newValue
-                                launchAtLoginError = nil
-                            } catch {
-                                launchAtLoginError = error.localizedDescription
-                            }
+                        set: { enabled in
+                            updateLaunchAtLogin(enabled)
                         }
                     )
                 )
@@ -104,8 +125,6 @@ struct SettingsView: View {
             }
         }
         .formStyle(.grouped)
-        .padding()
-        .background(SettingsWindowConfigurator())
     }
 
     @ViewBuilder
@@ -113,15 +132,16 @@ struct SettingsView: View {
         title: String,
         value: Binding<Double>,
         range: ClosedRange<Double>,
+        step: Double,
         suffix: String
     ) -> some View {
         HStack {
             Text(title)
-                .frame(width: 105, alignment: .leading)
-            Slider(value: value, in: range)
+                .frame(width: 92, alignment: .leading)
+            Slider(value: value, in: range, step: step)
             Text(formatted(value.wrappedValue, suffix: suffix))
                 .monospacedDigit()
-                .frame(width: 54, alignment: .trailing)
+                .frame(width: 48, alignment: .trailing)
         }
     }
 
@@ -130,6 +150,139 @@ struct SettingsView: View {
             return "\(Int((value * 100).rounded()))%"
         }
         return "\(Int(value.rounded())) \(suffix)"
+    }
+
+    private func updateLaunchAtLogin(_ enabled: Bool) {
+        do {
+            if enabled {
+                try SMAppService.mainApp.register()
+            } else {
+                try SMAppService.mainApp.unregister()
+            }
+            settings.launchAtLogin = enabled
+            launchAtLoginError = nil
+        } catch {
+            launchAtLoginError = error.localizedDescription
+        }
+    }
+}
+
+private struct AboutSettingsView: View {
+    private var version: String {
+        Bundle.main.object(
+            forInfoDictionaryKey: "CFBundleShortVersionString"
+        ) as? String ?? "Development"
+    }
+
+    private var build: String {
+        Bundle.main.object(
+            forInfoDictionaryKey: "CFBundleVersion"
+        ) as? String ?? "—"
+    }
+
+    var body: some View {
+        VStack(spacing: 14) {
+            Image(nsImage: NSApp.applicationIconImage)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 82, height: 82)
+
+            VStack(spacing: 4) {
+                Text("ScreenFocus")
+                    .font(.title2.weight(.semibold))
+                Text("Focus that follows your pointer.")
+                    .foregroundStyle(.secondary)
+                Text("Version \(version) (\(build))")
+                    .font(.caption)
+                    .foregroundStyle(.tertiary)
+            }
+
+            Link(destination: AppLinks.website) {
+                HStack(spacing: 5) {
+                    Text("Designed & built by Rohit Das")
+                    Image(systemName: "arrow.up.right")
+                        .font(.caption.weight(.semibold))
+                }
+            }
+            .buttonStyle(.plain)
+            .foregroundStyle(.tint)
+
+            VStack(spacing: 0) {
+                aboutLink(
+                    "Website",
+                    detail: "therohitdas.com",
+                    systemImage: "globe",
+                    destination: AppLinks.website
+                )
+                Divider()
+                aboutLink(
+                    "Source Code",
+                    detail: "View the project on GitHub",
+                    systemImage: "chevron.left.forwardslash.chevron.right",
+                    destination: AppLinks.sourceCode
+                )
+                Divider()
+                aboutLink(
+                    "Report an Issue",
+                    detail: "Feedback and bug reports",
+                    systemImage: "exclamationmark.bubble",
+                    destination: AppLinks.issues
+                )
+                Divider()
+                aboutLink(
+                    "End User License Agreement",
+                    detail: "Terms for using ScreenFocus",
+                    systemImage: "doc.text",
+                    destination: AppLinks.eula
+                )
+                Divider()
+                aboutLink(
+                    "Privacy",
+                    detail: "What ScreenFocus accesses",
+                    systemImage: "hand.raised",
+                    destination: AppLinks.privacy
+                )
+            }
+            .background(
+                .quaternary.opacity(0.45),
+                in: RoundedRectangle(cornerRadius: 10)
+            )
+        }
+        .padding(.horizontal, 28)
+        .padding(.vertical, 18)
+    }
+
+    private func aboutLink(
+        _ title: String,
+        detail: String,
+        systemImage: String,
+        destination: URL
+    ) -> some View {
+        Link(destination: destination) {
+            HStack(spacing: 11) {
+                Image(systemName: systemImage)
+                    .frame(width: 18)
+                    .foregroundStyle(.secondary)
+
+                VStack(alignment: .leading, spacing: 1) {
+                    Text(title)
+                        .foregroundStyle(.primary)
+                    Text(detail)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+
+                Spacer()
+
+                Image(systemName: "arrow.up.right")
+                    .font(.caption2.weight(.semibold))
+                    .foregroundStyle(.tertiary)
+            }
+            .contentShape(Rectangle())
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+        }
+        .buttonStyle(.plain)
     }
 }
 

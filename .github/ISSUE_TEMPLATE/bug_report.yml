@@ -1,0 +1,79 @@
+name: Bug report
+description: Tell us about something that is not working correctly.
+title: "[Bug]: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping improve ScreenFocus. Please avoid sharing private
+        document content or unrelated screenshots.
+
+  - type: input
+    id: version
+    attributes:
+      label: ScreenFocus version
+      placeholder: "0.4.0"
+    validations:
+      required: true
+
+  - type: input
+    id: macos
+    attributes:
+      label: macOS version
+      placeholder: "macOS 15.5"
+    validations:
+      required: true
+
+  - type: input
+    id: hardware
+    attributes:
+      label: Mac and display setup
+      placeholder: "M3 MacBook Pro with two external displays"
+    validations:
+      required: true
+
+  - type: textarea
+    id: happened
+    attributes:
+      label: What happened?
+      description: Include which app and display should have received focus.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect?
+    validations:
+      required: true
+
+  - type: dropdown
+    id: pointer_target
+    attributes:
+      label: What was under the pointer?
+      options:
+        - A normal application window
+        - Empty desktop space
+        - Dock, Control Center, or another macOS surface
+        - Not sure
+    validations:
+      required: true
+
+  - type: input
+    id: status
+    attributes:
+      label: ScreenFocus menu status
+      placeholder: "Aligned, Guarded, Highlight only, or Failed"
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Focused…
+        2. Moved the pointer…
+        3. Pressed…
+    validations:
+      required: true
