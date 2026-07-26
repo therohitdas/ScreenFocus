@@ -197,6 +197,3 @@ Copyright © 2026 Rohit Das.
 ## Current version
 
 `0.5.2`
-
-ScreenFocus is an early personal utility. Back up anything important and test
-its behavior with the applications and shortcuts you rely on.
