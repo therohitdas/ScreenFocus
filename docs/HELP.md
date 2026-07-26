@@ -63,8 +63,9 @@ reconnects. This setting is enabled by default.
 - **Opacity:** Visibility of the highlight.
 - **Corner length:** Length of L-shaped markers.
 
-On a built-in Mac display with a camera housing, the full border automatically
-follows a rounded path around it. There is no separate setting or permission.
+On a built-in Mac display, the full border automatically follows the display's
+rounded corners and wraps around its camera housing when present. External
+displays keep square corners. There is no separate setting or permission.
 
 ### Launch at login
 

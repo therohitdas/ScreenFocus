@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.5.4
+
+- Rounded the full border at all four corners of the built-in Mac display.
+- Combined the rounded screen perimeter and camera-housing detour into one
+  seamless path.
+- Kept external displays square to match their physical panels.
+
 ## 0.5.3
 
 - Added automatic camera-housing detection for built-in Mac displays.

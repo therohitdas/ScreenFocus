@@ -43,17 +43,20 @@ struct DisplayDescriptor: Equatable, Sendable {
     let id: CGDirectDisplayID
     let name: String
     let frame: CGRect
+    let isBuiltIn: Bool
     let cutout: DisplayCutout?
 
     init(
         id: CGDirectDisplayID,
         name: String,
         frame: CGRect,
+        isBuiltIn: Bool = false,
         cutout: DisplayCutout? = nil
     ) {
         self.id = id
         self.name = name
         self.frame = frame
+        self.isBuiltIn = isBuiltIn
         self.cutout = cutout
     }
 }
@@ -78,18 +81,20 @@ final class DisplayRegistry {
             }
 
             let displayID = CGDirectDisplayID(number.uint32Value)
+            let isBuiltIn = CGDisplayIsBuiltin(displayID) != 0
             let cutout = DisplayCutout.cameraHousing(
                 screenFrame: screen.frame,
                 safeAreaTopInset: screen.safeAreaInsets.top,
                 auxiliaryTopLeftArea: screen.auxiliaryTopLeftArea,
                 auxiliaryTopRightArea: screen.auxiliaryTopRightArea,
-                isBuiltIn: CGDisplayIsBuiltin(displayID) != 0
+                isBuiltIn: isBuiltIn
             )
 
             return DisplayDescriptor(
                 id: displayID,
                 name: screen.localizedName,
                 frame: screen.frame,
+                isBuiltIn: isBuiltIn,
                 cutout: cutout
             )
         }

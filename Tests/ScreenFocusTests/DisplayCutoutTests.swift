@@ -9,6 +9,23 @@ final class DisplayCutoutTests: XCTestCase {
     private let leftArea = CGRect(x: 0, y: 1080, width: 738, height: 37)
     private let rightArea = CGRect(x: 990, y: 1080, width: 738, height: 37)
 
+    func testDisplayDescriptorTracksBuiltInDisplaySeparatelyFromCutout() {
+        let builtInDisplay = DisplayDescriptor(
+            id: 1,
+            name: "Built-in Display",
+            frame: screenFrame,
+            isBuiltIn: true
+        )
+        let externalDisplay = DisplayDescriptor(
+            id: 2,
+            name: "External Display",
+            frame: screenFrame
+        )
+
+        XCTAssertTrue(builtInDisplay.isBuiltIn)
+        XCTAssertFalse(externalDisplay.isBuiltIn)
+    }
+
     func testCameraHousingUsesSafeAreaAndAuxiliaryRegions() {
         let cutout = DisplayCutout.cameraHousing(
             screenFrame: screenFrame,

@@ -242,6 +242,183 @@ struct TopBorderGeometry {
     }
 }
 
+struct BuiltInBorderLayout: Equatable {
+    let frame: CGRect
+    let lineThickness: CGFloat
+    let perimeter: CGRect
+    let cornerRadius: CGFloat
+    let cutoutRoute: TopBorderLayout.CutoutRoute?
+}
+
+struct BuiltInBorderGeometry {
+    static let recommendedCornerRadius: CGFloat = 14
+
+    static func layout(
+        displayFrame: CGRect,
+        cutoutFrame: CGRect?,
+        gap: CGFloat,
+        thickness: CGFloat
+    ) -> BuiltInBorderLayout {
+        let inset = max(0, gap.rounded())
+        let frame = displayFrame.insetBy(dx: inset, dy: inset)
+        let lineThickness = min(
+            max(1, thickness.rounded()),
+            frame.width / 2,
+            frame.height / 2
+        )
+        let halfThickness = lineThickness / 2
+        let perimeter = CGRect(origin: .zero, size: frame.size).insetBy(
+            dx: halfThickness,
+            dy: halfThickness
+        )
+        let cornerRadius = min(
+            recommendedCornerRadius,
+            perimeter.width / 2,
+            perimeter.height / 2
+        )
+        let topLayout = TopBorderGeometry.layout(
+            displayFrame: displayFrame,
+            cutoutFrame: cutoutFrame,
+            gap: gap,
+            thickness: thickness
+        )
+        let cutoutRoute = topLayout.cutoutRoute.map { route in
+            TopBorderLayout.CutoutRoute(
+                leftX: topLayout.frame.minX + route.leftX - frame.minX,
+                rightX: topLayout.frame.minX + route.rightX - frame.minX,
+                bottomY: topLayout.frame.minY + route.bottomY - frame.minY,
+                cornerRadius: route.cornerRadius
+            )
+        }
+
+        return BuiltInBorderLayout(
+            frame: frame,
+            lineThickness: lineThickness,
+            perimeter: perimeter,
+            cornerRadius: max(0, cornerRadius),
+            cutoutRoute: cutoutRoute
+        )
+    }
+
+    static func path(for layout: BuiltInBorderLayout) -> CGPath {
+        let perimeter = layout.perimeter
+        let radius = layout.cornerRadius
+        let path = CGMutablePath()
+
+        path.move(
+            to: CGPoint(
+                x: perimeter.minX,
+                y: perimeter.minY + radius
+            )
+        )
+        path.addQuadCurve(
+            to: CGPoint(
+                x: perimeter.minX + radius,
+                y: perimeter.minY
+            ),
+            control: CGPoint(x: perimeter.minX, y: perimeter.minY)
+        )
+        path.addLine(
+            to: CGPoint(
+                x: perimeter.maxX - radius,
+                y: perimeter.minY
+            )
+        )
+        path.addQuadCurve(
+            to: CGPoint(
+                x: perimeter.maxX,
+                y: perimeter.minY + radius
+            ),
+            control: CGPoint(x: perimeter.maxX, y: perimeter.minY)
+        )
+        path.addLine(
+            to: CGPoint(
+                x: perimeter.maxX,
+                y: perimeter.maxY - radius
+            )
+        )
+        path.addQuadCurve(
+            to: CGPoint(
+                x: perimeter.maxX - radius,
+                y: perimeter.maxY
+            ),
+            control: CGPoint(x: perimeter.maxX, y: perimeter.maxY)
+        )
+
+        if let route = layout.cutoutRoute {
+            let cutoutRadius = route.cornerRadius
+            path.addLine(
+                to: CGPoint(
+                    x: route.rightX + cutoutRadius,
+                    y: perimeter.maxY
+                )
+            )
+            path.addQuadCurve(
+                to: CGPoint(
+                    x: route.rightX,
+                    y: perimeter.maxY - cutoutRadius
+                ),
+                control: CGPoint(x: route.rightX, y: perimeter.maxY)
+            )
+            path.addLine(
+                to: CGPoint(
+                    x: route.rightX,
+                    y: route.bottomY + cutoutRadius
+                )
+            )
+            path.addQuadCurve(
+                to: CGPoint(
+                    x: route.rightX - cutoutRadius,
+                    y: route.bottomY
+                ),
+                control: CGPoint(x: route.rightX, y: route.bottomY)
+            )
+            path.addLine(
+                to: CGPoint(
+                    x: route.leftX + cutoutRadius,
+                    y: route.bottomY
+                )
+            )
+            path.addQuadCurve(
+                to: CGPoint(
+                    x: route.leftX,
+                    y: route.bottomY + cutoutRadius
+                ),
+                control: CGPoint(x: route.leftX, y: route.bottomY)
+            )
+            path.addLine(
+                to: CGPoint(
+                    x: route.leftX,
+                    y: perimeter.maxY - cutoutRadius
+                )
+            )
+            path.addQuadCurve(
+                to: CGPoint(
+                    x: route.leftX - cutoutRadius,
+                    y: perimeter.maxY
+                ),
+                control: CGPoint(x: route.leftX, y: perimeter.maxY)
+            )
+        }
+
+        path.addLine(
+            to: CGPoint(
+                x: perimeter.minX + radius,
+                y: perimeter.maxY
+            )
+        )
+        path.addQuadCurve(
+            to: CGPoint(
+                x: perimeter.minX,
+                y: perimeter.maxY - radius
+            ),
+            control: CGPoint(x: perimeter.minX, y: perimeter.maxY)
+        )
+        path.closeSubpath()
+        return path
+    }
+}
+
 struct CornerGeometry {
     static func rectangles(
         for corner: CornerPosition,
@@ -325,11 +502,15 @@ final class OverlayController {
         for display in displays {
             switch settings.highlightStyle {
             case .fullBorder:
-                panels[display.id] = BorderEdge.allCases.map { edge in
-                    if edge == .top {
-                        TopBorderPanel()
-                    } else {
-                        BorderPanel(edge: edge)
+                if display.isBuiltIn {
+                    panels[display.id] = [BuiltInBorderPanel()]
+                } else {
+                    panels[display.id] = BorderEdge.allCases.map { edge in
+                        if edge == .top {
+                            TopBorderPanel()
+                        } else {
+                            BorderPanel(edge: edge)
+                        }
                     }
                 }
             case .cornerMarkers:
@@ -511,6 +692,40 @@ private final class CornerPanel: HighlightPanel {
 }
 
 @MainActor
+private final class BuiltInBorderPanel: HighlightPanel {
+    private let borderView = BuiltInBorderView()
+
+    init() {
+        super.init(contentView: borderView)
+    }
+
+    override func configure(
+        display: DisplayDescriptor,
+        settings: AppSettings,
+        color: NSColor
+    ) {
+        let layout = BuiltInBorderGeometry.layout(
+            displayFrame: display.frame,
+            cutoutFrame: display.cutout?.frame,
+            gap: CGFloat(settings.edgeGap),
+            thickness: CGFloat(settings.cornerThickness)
+        )
+        setFrame(layout.frame, display: false)
+        borderView.configure(
+            layout: layout,
+            color: color,
+            opacity: settings.overlayOpacity
+        )
+    }
+
+    override func update(color: NSColor, opacity: Double) {
+        borderView.color = color
+        borderView.markerOpacity = opacity
+        borderView.needsDisplay = true
+    }
+}
+
+@MainActor
 private final class TopBorderPanel: HighlightPanel {
     private let borderView = TopBorderView()
 
@@ -620,6 +835,52 @@ private final class CornerView: NSView {
         )
         NSBezierPath(rect: rectangles.horizontal).fill()
         NSBezierPath(rect: rectangles.vertical).fill()
+    }
+}
+
+@MainActor
+private final class BuiltInBorderView: NSView {
+    var color: NSColor = .systemBlue
+    var markerOpacity: Double = 0.90
+    private var layout: BuiltInBorderLayout?
+
+    init() {
+        super.init(frame: .zero)
+        setAccessibilityElement(false)
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    func configure(
+        layout: BuiltInBorderLayout,
+        color: NSColor,
+        opacity: Double
+    ) {
+        self.layout = layout
+        self.color = color
+        markerOpacity = opacity
+        needsDisplay = true
+    }
+
+    override func draw(_ dirtyRect: NSRect) {
+        super.draw(dirtyRect)
+        guard
+            let context = NSGraphicsContext.current?.cgContext,
+            let layout
+        else {
+            return
+        }
+
+        context.setShouldAntialias(true)
+        context.setStrokeColor(color.withAlphaComponent(markerOpacity).cgColor)
+        context.setLineWidth(layout.lineThickness)
+        context.setLineJoin(.round)
+        context.setLineCap(.round)
+        context.addPath(BuiltInBorderGeometry.path(for: layout))
+        context.strokePath()
     }
 }
 

@@ -141,9 +141,68 @@ final class OverlayGeometryTests: XCTestCase {
         XCTAssertNil(layout.cutoutRoute)
     }
 
+    func testBuiltInBorderRoundsAllFourOuterCorners() {
+        let layout = BuiltInBorderGeometry.layout(
+            displayFrame: displayFrame,
+            cutoutFrame: nil,
+            gap: 0,
+            thickness: 5
+        )
+        let path = BuiltInBorderGeometry.path(for: layout)
+        let elementCounts = pathElementCounts(path)
+
+        XCTAssertEqual(layout.frame, displayFrame)
+        XCTAssertEqual(
+            layout.perimeter,
+            CGRect(x: 2.5, y: 2.5, width: 1915, height: 1075)
+        )
+        XCTAssertEqual(
+            layout.cornerRadius,
+            BuiltInBorderGeometry.recommendedCornerRadius
+        )
+        XCTAssertNil(layout.cutoutRoute)
+        XCTAssertEqual(elementCounts.quadraticCurves, 4)
+        XCTAssertEqual(elementCounts.closedSubpaths, 1)
+    }
+
+    func testBuiltInBorderCombinesRoundedCornersAndNotchRoute() {
+        let layout = BuiltInBorderGeometry.layout(
+            displayFrame: displayFrame,
+            cutoutFrame: CGRect(x: 832, y: 1006, width: 256, height: 74),
+            gap: 0,
+            thickness: 5
+        )
+        let path = BuiltInBorderGeometry.path(for: layout)
+        let elementCounts = pathElementCounts(path)
+
+        XCTAssertNotNil(layout.cutoutRoute)
+        XCTAssertEqual(elementCounts.quadraticCurves, 8)
+        XCTAssertEqual(elementCounts.closedSubpaths, 1)
+    }
+
     private func overlapArea(_ first: CGRect, _ second: CGRect) -> CGFloat {
         let intersection = first.intersection(second)
         guard !intersection.isNull else { return 0 }
         return intersection.width * intersection.height
+    }
+
+    private func pathElementCounts(
+        _ path: CGPath
+    ) -> (quadraticCurves: Int, closedSubpaths: Int) {
+        var quadraticCurveCount = 0
+        var closedSubpathCount = 0
+
+        path.applyWithBlock { element in
+            switch element.pointee.type {
+            case .addQuadCurveToPoint:
+                quadraticCurveCount += 1
+            case .closeSubpath:
+                closedSubpathCount += 1
+            default:
+                break
+            }
+        }
+
+        return (quadraticCurveCount, closedSubpathCount)
     }
 }
