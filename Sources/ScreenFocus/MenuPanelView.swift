@@ -47,8 +47,8 @@ struct MenuPanelView: View {
                             systemImage: settings.enabled ? "pause.fill" : "play.fill"
                         )
                     }
-                    .buttonStyle(.bordered)
-                    .controlSize(.small)
+                    .buttonStyle(TrayControlButtonStyle())
+                    .focusable(false)
                     .focusEffectDisabled()
                     .help(settings.enabled ? "Pause ScreenFocus" : "Resume ScreenFocus")
                 }
@@ -157,5 +157,21 @@ struct MenuPanelView: View {
         default:
             .green
         }
+    }
+}
+
+private struct TrayControlButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.caption.weight(.medium))
+            .foregroundStyle(.secondary)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 3)
+            .background(
+                Color.secondary.opacity(configuration.isPressed ? 0.24 : 0.14),
+                in: RoundedRectangle(cornerRadius: 5, style: .continuous)
+            )
+            .opacity(configuration.isPressed ? 0.8 : 1)
+            .contentShape(Rectangle())
     }
 }

@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.5.1
+
+- Removed the keyboard-focus outline from the tray Pause/Resume button.
+
 ## 0.5.0
 
 - Added an option to pause automatically when only one display is connected.
