@@ -63,6 +63,9 @@ reconnects. This setting is enabled by default.
 - **Opacity:** Visibility of the highlight.
 - **Corner length:** Length of L-shaped markers.
 
+On a built-in Mac display with a camera housing, the full border automatically
+follows a rounded path around it. There is no separate setting or permission.
+
 ### Launch at login
 
 Starts ScreenFocus automatically after you sign in. This is enabled by default

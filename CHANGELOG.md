@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.5.3
+
+- Added automatic camera-housing detection for built-in Mac displays.
+- Made the full border follow a rounded contour around the camera housing.
+- Kept external and non-notched displays on the existing seamless straight
+  border, with no new setting or permission.
+
 ## 0.5.2
 
 - Licensed the ScreenFocus source code under the Mozilla Public License 2.0.

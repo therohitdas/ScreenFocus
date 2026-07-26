@@ -46,6 +46,8 @@ inside an editor that is still focused on Display 1. ScreenFocus closes that gap
 - Focuses the window under the pointer when crossing displays.
 - Protects the previous text field when the new display has no target window.
 - Shows an instant full-display border using your chosen color and opacity.
+- Automatically wraps the full border around a built-in Mac display's camera
+  housing with a rounded contour.
 - Includes optional corner markers and a completely hidden overlay mode.
 - Preserves global shortcuts instead of intercepting the keyboard.
 - Defers focus changes while dragging.
@@ -196,4 +198,4 @@ Copyright © 2026 Rohit Das.
 
 ## Current version
 
-`0.5.2`
+`0.5.3`

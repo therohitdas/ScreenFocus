@@ -67,6 +67,80 @@ final class OverlayGeometryTests: XCTestCase {
         }
     }
 
+    func testTopBorderRemainsStraightWithoutACutout() {
+        let layout = TopBorderGeometry.layout(
+            displayFrame: displayFrame,
+            cutoutFrame: nil,
+            gap: 0,
+            thickness: 5
+        )
+
+        XCTAssertEqual(
+            layout.frame,
+            BorderGeometry.frame(
+                for: .top,
+                displayFrame: displayFrame,
+                gap: 0,
+                thickness: 5
+            )
+        )
+        XCTAssertNil(layout.cutoutRoute)
+    }
+
+    func testTopBorderRoutesAroundCutoutWithRoundedCorners() throws {
+        let cutout = CGRect(x: 832, y: 1006, width: 256, height: 74)
+        let layout = TopBorderGeometry.layout(
+            displayFrame: displayFrame,
+            cutoutFrame: cutout,
+            gap: 0,
+            thickness: 5
+        )
+        let route = try XCTUnwrap(layout.cutoutRoute)
+
+        XCTAssertLessThan(layout.frame.minY, cutout.minY)
+        XCTAssertLessThan(route.leftX + layout.frame.minX, cutout.minX)
+        XCTAssertGreaterThan(route.rightX + layout.frame.minX, cutout.maxX)
+        XCTAssertLessThan(route.bottomY + layout.frame.minY, cutout.minY)
+        XCTAssertGreaterThan(route.cornerRadius, 0)
+        XCTAssertLessThanOrEqual(route.cornerRadius, 12)
+    }
+
+    func testNotchContourRoundsAllFourTurns() throws {
+        let layout = TopBorderGeometry.layout(
+            displayFrame: displayFrame,
+            cutoutFrame: CGRect(x: 832, y: 1006, width: 256, height: 74),
+            gap: 0,
+            thickness: 5
+        )
+        let path = try XCTUnwrap(
+            TopBorderGeometry.path(
+                for: layout,
+                bounds: CGRect(origin: .zero, size: layout.frame.size)
+            )
+        )
+        var quadraticCurveCount = 0
+
+        path.applyWithBlock { element in
+            if element.pointee.type == .addQuadCurveToPoint {
+                quadraticCurveCount += 1
+            }
+        }
+
+        XCTAssertEqual(quadraticCurveCount, 4)
+    }
+
+    func testTopBorderDoesNotRouteWhenEdgeGapClearsCutout() {
+        let cutout = CGRect(x: 832, y: 1006, width: 256, height: 74)
+        let layout = TopBorderGeometry.layout(
+            displayFrame: displayFrame,
+            cutoutFrame: cutout,
+            gap: 80,
+            thickness: 5
+        )
+
+        XCTAssertNil(layout.cutoutRoute)
+    }
+
     private func overlapArea(_ first: CGRect, _ second: CGRect) -> CGFloat {
         let intersection = first.intersection(second)
         guard !intersection.isNull else { return 0 }

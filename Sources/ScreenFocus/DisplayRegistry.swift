@@ -4,10 +4,58 @@ import AppKit
 import CoreGraphics
 import Foundation
 
+struct DisplayCutout: Equatable, Sendable {
+    let frame: CGRect
+
+    static func cameraHousing(
+        screenFrame: CGRect,
+        safeAreaTopInset: CGFloat,
+        auxiliaryTopLeftArea: CGRect?,
+        auxiliaryTopRightArea: CGRect?,
+        isBuiltIn: Bool
+    ) -> DisplayCutout? {
+        guard
+            isBuiltIn,
+            safeAreaTopInset > 0,
+            let leftArea = auxiliaryTopLeftArea,
+            let rightArea = auxiliaryTopRightArea,
+            rightArea.minX > leftArea.maxX
+        else {
+            return nil
+        }
+
+        let frame = CGRect(
+            x: leftArea.maxX,
+            y: screenFrame.maxY - safeAreaTopInset,
+            width: rightArea.minX - leftArea.maxX,
+            height: safeAreaTopInset
+        ).intersection(screenFrame)
+
+        guard !frame.isNull, frame.width > 0, frame.height > 0 else {
+            return nil
+        }
+
+        return DisplayCutout(frame: frame)
+    }
+}
+
 struct DisplayDescriptor: Equatable, Sendable {
     let id: CGDirectDisplayID
     let name: String
     let frame: CGRect
+    let cutout: DisplayCutout?
+
+    init(
+        id: CGDirectDisplayID,
+        name: String,
+        frame: CGRect,
+        cutout: DisplayCutout? = nil
+    ) {
+        self.id = id
+        self.name = name
+        self.frame = frame
+        self.cutout = cutout
+    }
 }
 
 @MainActor
@@ -29,10 +77,20 @@ final class DisplayRegistry {
                 return nil
             }
 
+            let displayID = CGDirectDisplayID(number.uint32Value)
+            let cutout = DisplayCutout.cameraHousing(
+                screenFrame: screen.frame,
+                safeAreaTopInset: screen.safeAreaInsets.top,
+                auxiliaryTopLeftArea: screen.auxiliaryTopLeftArea,
+                auxiliaryTopRightArea: screen.auxiliaryTopRightArea,
+                isBuiltIn: CGDisplayIsBuiltin(displayID) != 0
+            )
+
             return DisplayDescriptor(
-                id: CGDirectDisplayID(number.uint32Value),
+                id: displayID,
                 name: screen.localizedName,
-                frame: screen.frame
+                frame: screen.frame,
+                cutout: cutout
             )
         }
         return displays
