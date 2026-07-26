@@ -42,6 +42,10 @@ private struct GeneralSettingsView: View {
                     "Transfer focus when the pointer crosses displays",
                     isOn: $settings.focusTransferEnabled
                 )
+                Toggle(
+                    "Pause when only one display is connected",
+                    isOn: $settings.pauseOnSingleDisplay
+                )
 
                 Text(
                     "Empty desktop space is protected without blocking global "

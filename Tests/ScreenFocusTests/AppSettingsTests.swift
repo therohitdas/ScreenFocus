@@ -17,8 +17,21 @@ final class AppSettingsTests: XCTestCase {
         XCTAssertEqual(settings.cornerLength, 72)
         XCTAssertEqual(settings.cornerThickness, 5)
         XCTAssertEqual(settings.overlayOpacity, 1)
+        XCTAssertTrue(settings.pauseOnSingleDisplay)
         XCTAssertTrue(settings.launchAtLogin)
         XCTAssertTrue(settings.shouldRegisterLaunchAtLoginByDefault)
+    }
+
+    func testSingleDisplayPausePreferencePersists() throws {
+        let suiteName = "ScreenFocusTests.\(UUID().uuidString)"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suiteName))
+        defaults.removePersistentDomain(forName: suiteName)
+        let settings = AppSettings(defaults: defaults)
+
+        settings.pauseOnSingleDisplay = false
+        let reloaded = AppSettings(defaults: defaults)
+
+        XCTAssertFalse(reloaded.pauseOnSingleDisplay)
     }
 
     func testStoredLaunchAtLoginChoiceOverridesTheDefault() throws {

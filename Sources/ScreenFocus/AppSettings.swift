@@ -26,6 +26,7 @@ final class AppSettings: ObservableObject {
     private enum Key {
         static let enabled = "enabled"
         static let focusTransferEnabled = "focusTransferEnabled"
+        static let pauseOnSingleDisplay = "pauseOnSingleDisplay"
         static let highlightStyle = "highlightStyle"
         static let highlightColorHex = "highlightColorHex"
         static let edgeGap = "edgeGap"
@@ -48,6 +49,10 @@ final class AppSettings: ObservableObject {
     }
 
     @Published var focusTransferEnabled: Bool {
+        didSet { changed() }
+    }
+
+    @Published var pauseOnSingleDisplay: Bool {
         didSet { changed() }
     }
 
@@ -87,6 +92,7 @@ final class AppSettings: ObservableObject {
         defaults.register(defaults: [
             Key.enabled: true,
             Key.focusTransferEnabled: true,
+            Key.pauseOnSingleDisplay: true,
             Key.highlightStyle: HighlightStyle.fullBorder.rawValue,
             Key.highlightColorHex: "#797979",
             Key.edgeGap: 0.0,
@@ -98,6 +104,7 @@ final class AppSettings: ObservableObject {
 
         enabled = defaults.bool(forKey: Key.enabled)
         focusTransferEnabled = defaults.bool(forKey: Key.focusTransferEnabled)
+        pauseOnSingleDisplay = defaults.bool(forKey: Key.pauseOnSingleDisplay)
         highlightStyle = HighlightStyle(
             rawValue: defaults.string(forKey: Key.highlightStyle) ?? ""
         ) ?? .fullBorder
@@ -129,6 +136,7 @@ final class AppSettings: ObservableObject {
 
         defaults.set(enabled, forKey: Key.enabled)
         defaults.set(focusTransferEnabled, forKey: Key.focusTransferEnabled)
+        defaults.set(pauseOnSingleDisplay, forKey: Key.pauseOnSingleDisplay)
         defaults.set(highlightStyle.rawValue, forKey: Key.highlightStyle)
         defaults.set(highlightColorHex, forKey: Key.highlightColorHex)
         defaults.set(edgeGap, forKey: Key.edgeGap)

@@ -49,6 +49,7 @@ inside an editor that is still focused on Display 1. ScreenFocus closes that gap
 - Includes optional corner markers and a completely hidden overlay mode.
 - Preserves global shortcuts instead of intercepting the keyboard.
 - Defers focus changes while dragging.
+- Optionally pauses automatically when only one display is connected.
 - Handles display reconnection and rearrangement.
 - Runs as a lightweight menu-bar app.
 - Requires no Screen Recording or Input Monitoring permission.
@@ -110,6 +111,7 @@ Open **Settings…** from the menu-bar item to change:
 - Highlight color.
 - Edge gap, thickness, and opacity.
 - Focus transfer.
+- Automatic pause with only one connected display.
 - Launch at login, enabled by default on first launch.
 
 For status meanings, troubleshooting, and uninstall steps, read
@@ -180,7 +182,7 @@ to grant Accessibility permission on a user's behalf.
 
 ## Current version
 
-`0.4.4`
+`0.5.0`
 
 ScreenFocus is an early personal utility. Back up anything important and test
 its behavior with the applications and shortcuts you rely on.

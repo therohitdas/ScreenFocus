@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.5.0
+
+- Added an option to pause automatically when only one display is connected.
+- Added a clear Active or Disabled status with a short reason in the tray.
+- Moved Pause/Resume from the header into the status row.
+- Automatically resumes when a second display reconnects.
+
 ## 0.4.4
 
 - Enabled Launch at Login by default on first launch.

@@ -20,16 +20,15 @@ ScreenFocus does not intercept or discard global keyboard events. System-wide
 shortcuts from macOS and tools such as Raycast, Karabiner-Elements, and Logitech
 software remain available.
 
-## Menu statuses
+## Tray statuses
 
 | Status | Meaning |
 |---|---|
-| Aligned | The pointer display is highlighted and focus is ready |
-| Switching focus | ScreenFocus is completing a cross-display focus request |
-| Guarded — no target window | Empty space is protected by the focus guard |
-| Highlight only | Accessibility is unavailable or focus transfer is disabled |
-| Focus could not be protected | macOS did not accept the requested focus |
-| Paused | ScreenFocus is disabled |
+| Active | Highlighting and focus protection are ready |
+| Active — Highlight only | Focus transfer is turned off |
+| Active — Needs accessibility | Highlighting works, but focus protection needs permission |
+| Disabled — Paused | ScreenFocus was paused manually |
+| Disabled — One display | Automatic single-display pause is active |
 
 The visual highlight always uses your selected color. Red is reserved for a
 verified failure.
@@ -43,6 +42,12 @@ Pauses or resumes both focus behavior and the overlay.
 ### Transfer focus when the pointer crosses displays
 
 Turn this off to use ScreenFocus only as a display indicator.
+
+### Pause when only one display is connected
+
+Stops focus handling and hides the overlay while macOS reports only one
+connected display. ScreenFocus resumes automatically when a second display
+reconnects. This setting is enabled by default.
 
 ### Style
 

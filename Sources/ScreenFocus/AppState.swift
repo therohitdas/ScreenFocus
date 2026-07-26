@@ -3,6 +3,39 @@ import CoreGraphics
 import Foundation
 import ServiceManagement
 
+enum ScreenFocusAvailability: Equatable {
+    case active
+    case paused
+    case singleDisplay
+
+    static func resolve(
+        enabled: Bool,
+        pauseOnSingleDisplay: Bool,
+        displayCount: Int
+    ) -> ScreenFocusAvailability {
+        guard enabled else { return .paused }
+        guard !pauseOnSingleDisplay || displayCount > 1 else {
+            return .singleDisplay
+        }
+        return .active
+    }
+
+    var isActive: Bool {
+        self == .active
+    }
+
+    var disabledReason: String? {
+        switch self {
+        case .active:
+            nil
+        case .paused:
+            "Paused"
+        case .singleDisplay:
+            "One display"
+        }
+    }
+}
+
 enum ScreenFocusStatus: Equatable {
     case starting
     case aligned
@@ -67,6 +100,7 @@ enum ScreenFocusStatus: Equatable {
 final class AppState: ObservableObject {
     @Published private(set) var status: ScreenFocusStatus = .starting
     @Published private(set) var pointerDisplayName = "Unknown"
+    @Published private(set) var connectedDisplayCount = 0
     @Published private(set) var lastError: String?
     @Published private(set) var accessibilityGranted = false
     @Published private(set) var launchAtLoginError: String?
@@ -90,6 +124,7 @@ final class AppState: ObservableObject {
 
     init(settings: AppSettings = AppSettings()) {
         self.settings = settings
+        connectedDisplayCount = displayRegistry.displays.count
         accessibilityGranted = accessibility.isTrusted
         self.settings.onChange = { [weak self] in
             self?.settingsDidChange()
@@ -111,7 +146,9 @@ final class AppState: ObservableObject {
         startPermissionMonitoring()
         reconcileLaunchAtLogin()
 
-        if settings.focusTransferEnabled, !accessibilityGranted {
+        if availability.isActive,
+           settings.focusTransferEnabled,
+           !accessibilityGranted {
             Task { @MainActor [weak self] in
                 try? await Task.sleep(for: .milliseconds(500))
                 self?.requestAccessibilityPermission()
@@ -130,6 +167,27 @@ final class AppState: ObservableObject {
 
     func toggleEnabled() {
         settings.enabled.toggle()
+    }
+
+    var availability: ScreenFocusAvailability {
+        ScreenFocusAvailability.resolve(
+            enabled: settings.enabled,
+            pauseOnSingleDisplay: settings.pauseOnSingleDisplay,
+            displayCount: connectedDisplayCount
+        )
+    }
+
+    var trayStatusTitle: String {
+        if let reason = availability.disabledReason {
+            return "Disabled — \(reason)"
+        }
+        if !settings.focusTransferEnabled {
+            return "Active — Highlight only"
+        }
+        if !accessibilityGranted {
+            return "Active — Needs accessibility"
+        }
+        return "Active"
     }
 
     func setLaunchAtLogin(_ enabled: Bool) {
@@ -178,7 +236,7 @@ final class AppState: ObservableObject {
     private func settingsDidChange() {
         overlays.refreshLayout()
 
-        guard settings.enabled else {
+        guard availability.isActive else {
             transitionID += 1
             focusGuard.disengage()
             overlays.hideAll()
@@ -204,8 +262,10 @@ final class AppState: ObservableObject {
         transitionID += 1
         focusGuard.disengage()
         let displays = displayRegistry.refresh()
+        connectedDisplayCount = displays.count
         overlays.rebuild(displays: displays, settings: settings)
         pointerMonitor.reset()
+        settingsDidChange()
     }
 
     private func handle(crossing: DisplayCrossing, appKitPoint: CGPoint) {
@@ -214,7 +274,7 @@ final class AppState: ObservableObject {
         currentDisplayID = crossing.displayID
         pointerDisplayName = display.name
 
-        guard settings.enabled else {
+        guard availability.isActive else {
             status = .paused
             overlays.hideAll()
             return

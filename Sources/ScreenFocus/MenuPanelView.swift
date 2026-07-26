@@ -16,25 +16,12 @@ struct MenuPanelView: View {
             HStack {
                 Image(systemName: state.status.symbolName)
                     .font(.title2)
-                    .foregroundStyle(statusColor)
+                    .foregroundStyle(.tint)
 
                 Text("ScreenFocus")
                     .font(.headline)
 
                 Spacer()
-
-                Button {
-                    state.toggleEnabled()
-                } label: {
-                    Label(
-                        settings.enabled ? "Pause" : "Resume",
-                        systemImage: settings.enabled ? "pause.fill" : "play.fill"
-                    )
-                }
-                .buttonStyle(.bordered)
-                .controlSize(.small)
-                .focusEffectDisabled()
-                .help(settings.enabled ? "Pause ScreenFocus" : "Resume ScreenFocus")
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 10)
@@ -42,9 +29,35 @@ struct MenuPanelView: View {
             Divider()
 
             VStack(alignment: .leading, spacing: 9) {
+                HStack(spacing: 7) {
+                    Circle()
+                        .fill(statusIndicatorColor)
+                        .frame(width: 7, height: 7)
+
+                    Text(state.trayStatusTitle)
+                        .font(.callout.weight(.medium))
+
+                    Spacer()
+
+                    Button {
+                        state.toggleEnabled()
+                    } label: {
+                        Label(
+                            settings.enabled ? "Pause" : "Resume",
+                            systemImage: settings.enabled ? "pause.fill" : "play.fill"
+                        )
+                    }
+                    .buttonStyle(.bordered)
+                    .controlSize(.small)
+                    .focusEffectDisabled()
+                    .help(settings.enabled ? "Pause ScreenFocus" : "Resume ScreenFocus")
+                }
+
                 LabeledContent("Pointer display", value: state.pointerDisplayName)
 
-                if !state.accessibilityGranted {
+                if state.availability.isActive,
+                   settings.focusTransferEnabled,
+                   !state.accessibilityGranted {
                     VStack(alignment: .leading, spacing: 7) {
                         Label(
                             "Accessibility access is needed for focus protection.",
@@ -131,16 +144,18 @@ struct MenuPanelView: View {
             .padding(.vertical, 7)
     }
 
-    private var statusColor: Color {
-        switch state.status {
+    private var statusIndicatorColor: Color {
+        guard state.availability.isActive else {
+            return .secondary
+        }
+
+        return switch state.status {
         case .failed:
             .red
         case .highlightOnly:
             .orange
-        case .paused:
-            .secondary
         default:
-            .accentColor
+            .green
         }
     }
 }
