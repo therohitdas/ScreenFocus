@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MPL-2.0
+
 import AppKit
 import SwiftUI
 
@@ -208,13 +210,6 @@ private struct AboutSettingsView: View {
 
             VStack(spacing: 0) {
                 aboutLink(
-                    "Website",
-                    detail: "therohitdas.com",
-                    systemImage: "globe",
-                    destination: AppLinks.website
-                )
-                Divider()
-                aboutLink(
                     "Source Code",
                     detail: "View the project on GitHub",
                     systemImage: "chevron.left.forwardslash.chevron.right",
@@ -230,9 +225,16 @@ private struct AboutSettingsView: View {
                 Divider()
                 aboutLink(
                     "End User License Agreement",
-                    detail: "Terms for using ScreenFocus",
+                    detail: "Terms for official builds",
                     systemImage: "doc.text",
                     destination: AppLinks.eula
+                )
+                Divider()
+                aboutLink(
+                    "Open Source License",
+                    detail: "Mozilla Public License 2.0",
+                    systemImage: "chevron.left.forwardslash.chevron.right",
+                    destination: AppLinks.openSourceLicense
                 )
                 Divider()
                 aboutLink(

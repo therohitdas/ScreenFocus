@@ -1,4 +1,5 @@
 #!/bin/zsh
+# SPDX-License-Identifier: MPL-2.0
 set -euo pipefail
 
 PROJECT_DIR="$(cd "$(dirname "$0")/.." && pwd)"

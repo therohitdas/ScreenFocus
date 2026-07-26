@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MPL-2.0
+
 import Foundation
 
 enum AppLinks {
@@ -10,6 +12,9 @@ enum AppLinks {
     )!
     static let eula = URL(
         string: "https://github.com/therohitdas/ScreenFocus/blob/main/EULA.md"
+    )!
+    static let openSourceLicense = URL(
+        string: "https://github.com/therohitdas/ScreenFocus/blob/main/LICENSE"
     )!
     static let privacy = URL(
         string: "https://github.com/therohitdas/ScreenFocus/blob/main/docs/PRIVACY.md"

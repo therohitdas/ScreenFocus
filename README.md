@@ -178,11 +178,25 @@ to grant Accessibility permission on a user's behalf.
 - [Development guide](docs/DEVELOPMENT.md)
 - [Privacy](docs/PRIVACY.md)
 - [End User License Agreement](EULA.md)
+- [Mozilla Public License 2.0](LICENSE)
 - [Changelog](CHANGELOG.md)
+
+## License
+
+ScreenFocus source code and build scripts are licensed under the
+[Mozilla Public License 2.0](LICENSE). If you distribute a modified version,
+files containing MPL-licensed code must remain available under the MPL.
+
+The ScreenFocus name, app icon, logo, screenshots, and other branding are not
+licensed under the MPL. You may not present a modified build as an official
+ScreenFocus release or use that branding without permission. Official prebuilt
+releases are also subject to the [End User License Agreement](EULA.md).
+
+Copyright © 2026 Rohit Das.
 
 ## Current version
 
-`0.5.1`
+`0.5.2`
 
 ScreenFocus is an early personal utility. Back up anything important and test
 its behavior with the applications and shortcuts you rely on.

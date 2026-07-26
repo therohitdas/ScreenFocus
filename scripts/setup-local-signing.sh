@@ -1,4 +1,5 @@
 #!/bin/zsh
+# SPDX-License-Identifier: MPL-2.0
 set -euo pipefail
 
 IDENTITY_NAME="ScreenFocus Local Development"

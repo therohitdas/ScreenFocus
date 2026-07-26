@@ -1,4 +1,5 @@
 #!/bin/zsh
+# SPDX-License-Identifier: MPL-2.0
 set -euo pipefail
 
 PROJECT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
@@ -30,6 +31,8 @@ mkdir -p "$CONTENTS_PATH/MacOS" "$CONTENTS_PATH/Resources"
 cp "$BINARY_PATH" "$CONTENTS_PATH/MacOS/ScreenFocus"
 cp "$PROJECT_DIR/Packaging/Info.plist" "$CONTENTS_PATH/Info.plist"
 cp "$PROJECT_DIR/Packaging/ScreenFocus.icns" "$CONTENTS_PATH/Resources/ScreenFocus.icns"
+cp "$PROJECT_DIR/LICENSE" "$CONTENTS_PATH/Resources/LICENSE"
+cp "$PROJECT_DIR/EULA.md" "$CONTENTS_PATH/Resources/EULA.md"
 chmod +x "$CONTENTS_PATH/MacOS/ScreenFocus"
 
 codesign --force --deep --options runtime --sign "$SIGNING_IDENTITY" "$APP_PATH"

@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.5.2
+
+- Licensed the ScreenFocus source code under the Mozilla Public License 2.0.
+- Added machine-readable MPL 2.0 notices to source and build-script files.
+- Added the open-source license to About and clarified the official-build EULA.
+
 ## 0.5.1
 
 - Removed the keyboard-focus outline from the tray Pause/Resume button.

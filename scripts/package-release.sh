@@ -1,4 +1,5 @@
 #!/bin/zsh
+# SPDX-License-Identifier: MPL-2.0
 set -euo pipefail
 
 PROJECT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
@@ -18,6 +19,15 @@ if [[ ! -f "$APP_PATH/Contents/Resources/$ICON_FILE" ]]; then
     print -u2 "The packaged app is missing its declared icon: $ICON_FILE"
     exit 1
 fi
+
+for document in LICENSE EULA.md; do
+    if ! cmp -s \
+        "$PROJECT_DIR/$document" \
+        "$APP_PATH/Contents/Resources/$document"; then
+        print -u2 "The packaged app is missing the current $document."
+        exit 1
+    fi
+done
 
 ditto -c -k --sequesterRsrc --keepParent "$APP_PATH" "$ARCHIVE_PATH"
 (
