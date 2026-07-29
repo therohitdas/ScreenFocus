@@ -11,6 +11,10 @@ ScreenFocus uses the macOS Accessibility API to:
 - Raise and focus that window.
 - Verify which application and window received focus.
 
+It also reads on-screen window bounds, ownership, layer, and front-to-back order
+from macOS Window Server metadata so an overlapping top window is not pushed
+behind a larger one. It does not capture window or display pixels.
+
 ## What it does not do
 
 - No Screen Recording.

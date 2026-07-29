@@ -44,6 +44,8 @@ inside an editor that is still focused on Display 1. ScreenFocus closes that gap
 ## Features
 
 - Focuses the window under the pointer when crossing displays.
+- Preserves window stacking by preferring the topmost window when destination
+  windows overlap.
 - Protects the previous text field when the new display has no target window.
 - Shows an instant full-display border using your chosen color and opacity.
 - Automatically follows the rounded corners and camera housing of a built-in
@@ -160,15 +162,16 @@ swift test
 ```
 
 Automated tests cover display-crossing behavior, settings persistence, color
-parsing, overlay independence, and Settings-window behavior. Cross-application
-focus still needs a short manual test because macOS does not allow a test suite
-to grant Accessibility permission on a user's behalf.
+parsing, overlay independence, overlapping-window ordering, and Settings-window
+behavior. Cross-application focus still needs a short manual test because macOS
+does not allow a test suite to grant Accessibility permission on a user's
+behalf.
 
 ## Permissions
 
 | Permission | Needed | Why |
 |---|---:|---|
-| Accessibility | Yes | Find, activate, and verify the window under the pointer |
+| Accessibility | Yes | Find, activate, and verify the intended destination window |
 | Screen Recording | No | ScreenFocus does not capture display content |
 | Input Monitoring | No | ScreenFocus does not install a global keyboard listener |
 | Microphone / System Audio | No | ScreenFocus does not use audio |
@@ -198,4 +201,4 @@ Copyright © 2026 Rohit Das.
 
 ## Current version
 
-`0.5.4`
+`0.5.5`

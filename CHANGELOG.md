@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.5.5
+
+- Preserved the destination display's existing window stacking during focus
+  transfer.
+- Focused the topmost usable window when it overlaps the window under the
+  crossing point.
+- Kept pointer-based selection unchanged for separate side-by-side windows.
+
 ## 0.5.4
 
 - Rounded the full border at all four corners of the built-in Mac display.

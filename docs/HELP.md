@@ -10,6 +10,10 @@ the window, and verifies that the window received focus.
 This happens only when the pointer crosses between displays. Moving within one
 display does not repeatedly change focus.
 
+When the window under the crossing point is overlapped by a higher window,
+ScreenFocus focuses that topmost overlapping window instead. Separate
+side-by-side windows still follow the pointer normally.
+
 ## What happens over empty space?
 
 When no suitable window exists under the pointer, ScreenFocus activates a tiny

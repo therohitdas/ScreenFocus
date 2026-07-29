@@ -304,7 +304,10 @@ final class AppState: ObservableObject {
         overlays.show(displayID: crossing.displayID, style: .aligned)
 
         let quartzPoint = CGEvent(source: nil)?.location ?? appKitPoint
-        guard let target = accessibility.target(at: quartzPoint) else {
+        guard let target = accessibility.target(
+            at: quartzPoint,
+            on: display
+        ) else {
             engageGuard(on: display)
             return
         }
